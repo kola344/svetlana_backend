@@ -29,7 +29,7 @@ def add_message(token, photo, text):
     print(assistant_answer)
     sessions[token]["messages"].append({"role": "assistant", "content": assistant_answer})
     print(sessions[token]["messages"])
-    tts.speak(token, assistant_answer)
-    with open(f'temp/{token}.mp3', 'rb') as f:
+    duration = tts.speak(token, assistant_answer)
+    with open(f'{config.path}temp/{token}.mp3', 'rb') as f:
         data = base64.b64encode(f.read()).decode('utf-8')
-    return assistant_answer, data
+    return assistant_answer, data, duration

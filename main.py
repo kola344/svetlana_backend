@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request
+
+import config
 from models import session
 import sessions
 import base64
@@ -28,7 +30,7 @@ async def create_session_page(request: Request):
         if missing_padding:
             image_data += "=" * (4 - missing_padding)
         image_bytes = base64.b64decode(image_data)
-        with open(f"image.jpg", "wb") as f:
+        with open(f"{config.path}image.jpg", "wb") as f:
             f.write(image_bytes)
         gender, race, age = df.analyse_for_create_session()
         token = sessions.create_session(gender, race, age)
@@ -62,16 +64,16 @@ async def send_request_page(request: Request):
         if missing_padding:
             image_data += "=" * (4 - missing_padding)
         image_bytes = base64.b64decode(image_data)
-        with open(f"temp/{token}.jpg", "wb") as f:
+        with open(f"{config.path}temp/{token}.jpg", "wb") as f:
             f.write(image_bytes)
-        response, audio_data = sessions.add_message(token, True, text)
+        response, audio_data, duration = sessions.add_message(token, True, text)
         print(response)
-        return {"status": True, "text": response, "audio": audio_data}
+        return {"status": True, "text": response, "audio": audio_data, "duration": duration}
     except:
         # traceback.print_exc()
         try:
-            response, audio_data = sessions.add_message(token, False, text)
-            return {"status": True, "text": response, "audio": audio_data}
+            response, audio_data, duration = sessions.add_message(token, False, text)
+            return {"status": True, "text": response, "audio": audio_data, "duration": duration}
         except:
             traceback.print_exc()
         return {"status": False}
