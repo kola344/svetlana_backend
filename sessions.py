@@ -3,6 +3,7 @@ import config
 import df
 import gigachat
 import tts
+import base64
 
 sessions = {}
 session_token = None
@@ -29,4 +30,6 @@ def add_message(token, photo, text):
     sessions[token]["messages"].append({"role": "assistant", "content": assistant_answer})
     print(sessions[token]["messages"])
     tts.speak(token, assistant_answer)
-    return assistant_answer
+    with open(f'temp/{token}.mp3', 'rb') as f:
+        data = base64.b64encode(f.read()).decode('utf-8')
+    return assistant_answer, data

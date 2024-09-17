@@ -47,8 +47,10 @@ async def send_request_page(request: Request):
         photo = data["photos"]
     except:
         photo = None
-    # token = data["token"]
-    token = sessions.session_token
+    if data["token"] == '' or data["token"] is None or data["token"] == "123":
+        token = sessions.session_token
+    else:
+        token = data["token"]
     text = data["text"]
     if text == "" or text == sessions.sessions[token]["last_message"]:
         return {"status": True}
@@ -62,15 +64,14 @@ async def send_request_page(request: Request):
         image_bytes = base64.b64decode(image_data)
         with open(f"temp/{token}.jpg", "wb") as f:
             f.write(image_bytes)
-        response = sessions.add_message(token, True, text)
+        response, audio_data = sessions.add_message(token, True, text)
         print(response)
-        return {"status": True, "text": response}
+        return {"status": True, "text": response, "audio": audio_data}
     except:
         # traceback.print_exc()
         try:
-            response = sessions.add_message(token, False, text)
-            return {"status": True, "text": response}
-
+            response, audio_data = sessions.add_message(token, False, text)
+            return {"status": True, "text": response, "audio": audio_data}
         except:
             traceback.print_exc()
         return {"status": False}
